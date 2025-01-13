@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+</head>
+<body>
+  <input type="file" accept="image/*" id="inputFile" />
+
+  <script>
+    // Function to convert the selected image to Base64
+    function convertImageToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          resolve(reader.result); // This is the Base64 string
+        };
+        reader.onerror = function() {
+          reject(reader.error);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // When a user picks an image, convert it
+    document.getElementById("inputFile").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        try {
+          // Convert image to Base64
+          const base64String = await convertImageToBase64(file);
+          
+          // Send Base64 back to Thunkable (via window.ReactNativeWebView.postMessage)
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(base64String);
+          } else {
+            // For testing outside of Thunkable
+            alert("Base64 string: " + base64String);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
